@@ -493,11 +493,12 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void collectPaymentMethod(final PaymentIntent paymentIntent){
-        pendingCreatePaymentIntent = Terminal.getInstance().collectPaymentMethod(paymentIntent, new PaymentIntentCallback() {
+    public void collectPaymentMethod(){
+        pendingCreatePaymentIntent = Terminal.getInstance().collectPaymentMethod(lastPaymentIntent, new PaymentIntentCallback() {
             @Override
-            public void onSuccess(final PaymentIntent paymentIntent) {
+            public void onSuccess(@Nonnull PaymentIntent paymentIntent) {
                 pendingCreatePaymentIntent = null;
+                lastPaymentIntent = paymentIntent;
                 WritableMap collectPaymentMethodMap = Arguments.createMap();
                 collectPaymentMethodMap.putMap(INTENT,serializePaymentIntent(paymentIntent,lastCurrency));
                 sendEventWithName(EVENT_PAYMENT_METHOD_COLLECTION,collectPaymentMethodMap);
