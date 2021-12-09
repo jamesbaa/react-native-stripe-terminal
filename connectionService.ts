@@ -1,6 +1,5 @@
 import EventEmitter from "eventemitter3";
-import { AsyncStorage } from "react-native";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function createConnectionService(StripeTerminal, options) {
   class STCS {
     static StorageKey = "@STCS:persistedSerialNumber";
@@ -19,7 +18,7 @@ export default function createConnectionService(StripeTerminal, options) {
       STCS.PolicyAuto,
       STCS.PolicyPersist,
       STCS.PolicyManual,
-      STCS.PolicyPersistManual
+      STCS.PolicyPersistManual,
     ];
 
     static DesiredReaderAny = "any";
@@ -29,7 +28,7 @@ export default function createConnectionService(StripeTerminal, options) {
       this.deviceType = deviceType || StripeTerminal.DeviceTypeChipper2X;
       this.discoveryMode =
         discoveryMode || StripeTerminal.DiscoveryMethodBluetoothProximity;
-      this.locationId = locationId
+      this.locationId = locationId;
 
       if (STCS.Policies.indexOf(policy) === -1) {
         throw new Error(
@@ -48,7 +47,7 @@ export default function createConnectionService(StripeTerminal, options) {
       );
     }
 
-    onReadersDiscovered = readers => {
+    onReadersDiscovered = (readers) => {
       this.emitter.emit(STCS.EventReadersDiscovered, readers);
 
       if (!readers.length) {
@@ -66,7 +65,7 @@ export default function createConnectionService(StripeTerminal, options) {
       // Auto-reconnect to "desired" reader, if one exists. This could happen
       // if the connection drops, for example. Or when restoring from memory.
       const foundReader = readers.find(
-        r => r.serialNumber === this.desiredReader
+        (r) => r.serialNumber === this.desiredReader
       );
       if (foundReader) {
         connectionPromise = StripeTerminal.connectReader(
@@ -89,7 +88,7 @@ export default function createConnectionService(StripeTerminal, options) {
       // If a connection is in progress, save the connected reader.
       if (connectionPromise) {
         connectionPromise
-          .then(r => {
+          .then((r) => {
             this.desiredReader = r.serialNumber;
 
             if (
@@ -99,7 +98,7 @@ export default function createConnectionService(StripeTerminal, options) {
               this.setPersistedReaderSerialNumber(this.desiredReader);
             }
           })
-          .catch(e => {
+          .catch((e) => {
             // If unable to connect, emit error & restart if in automatic mode.
             this.emitter.emit(STCS.EventConnectionError, e);
             if (this.policy !== STCS.PolicyManual) {
@@ -141,18 +140,12 @@ export default function createConnectionService(StripeTerminal, options) {
 
       await StripeTerminal.abortDiscoverReaders(); // end any pending search
       await StripeTerminal.disconnectReader(); // cancel any existing non-matching reader
-      return StripeTerminal.discoverReaders(
-        this.discoveryMode,
-        0
-      );
+      return StripeTerminal.discoverReaders(this.discoveryMode, 0);
     }
 
     async discover() {
       await StripeTerminal.abortDiscoverReaders(); // end any pending search
-      return StripeTerminal.discoverReaders(
-        this.discoveryMode,
-        0
-      );
+      return StripeTerminal.discoverReaders(this.discoveryMode, 0);
     }
 
     async disconnect() {
