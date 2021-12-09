@@ -187,11 +187,11 @@ class StripeTerminal {
     );
   }
 
-  collectPaymentMethod(paymentIntent) {
+  collectPaymentMethod() {
     return this._wrapPromiseReturn(
       "paymentMethodCollection",
       () => {
-        RNStripeTerminal.collectPaymentMethod(paymentIntent);
+        RNStripeTerminal.collectPaymentMethod();
       },
       "intent"
     );
