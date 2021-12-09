@@ -25,6 +25,7 @@ import com.stripe.stripeterminal.external.models.ConnectionConfiguration.Bluetoo
 import com.stripe.stripeterminal.external.models.ConnectionConfiguration.InternetConnectionConfiguration;
 import com.stripe.stripeterminal.external.models.ConnectionStatus;
 import com.stripe.stripeterminal.external.models.Cart;
+import com.stripe.stripeterminal.external.models.CartLineItem;
 import com.stripe.stripeterminal.external.models.ConnectionTokenException;
 import com.stripe.stripeterminal.external.models.DiscoveryMethod;
 import com.stripe.stripeterminal.external.models.DiscoveryConfiguration;
@@ -45,6 +46,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -253,7 +255,7 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void createPayment(final ReadableMap options) {
+    public void createPayment(final String paymentIntent) {
         PaymentIntentCallback paymentIntentCallback = new PaymentIntentCallback() {
             @Override
             public void onSuccess(@Nonnull final PaymentIntent paymentIntent) {
@@ -314,111 +316,9 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
             }
         };
 
-        String paymentIntent = null;
-        if(options.hasKey(PAYMENT_INTENT))
-            paymentIntent = options.getString(PAYMENT_INTENT);
-
-        if (paymentIntent != null && !paymentIntent.trim().isEmpty()) {
-            Terminal.getInstance().retrievePaymentIntent(paymentIntent, paymentIntentCallback);
-        } else {
-            PaymentIntentParameters.Builder paymentIntentParamBuilder = getPaymentParams(options);
-            Terminal.getInstance().createPaymentIntent(paymentIntentParamBuilder.build(), paymentIntentCallback);
-        }
-    }
-
-    private PaymentIntentParameters.Builder getPaymentParams(ReadableMap options){
-        PaymentIntentParameters.Builder paymentIntentParamBuilder = new PaymentIntentParameters.Builder();
-        if(options!=null) {
-            if (options.hasKey(AMOUNT)) {
-                paymentIntentParamBuilder.setAmount(options.getInt(AMOUNT));
-            }
-
-            if (options.hasKey(CURRENCY)) {
-                paymentIntentParamBuilder.setCurrency(options.getString(CURRENCY));
-            }
-
-            if (options.hasKey(APPLICATION_FEE_AMOUNT)) {
-                paymentIntentParamBuilder.setApplicationFeeAmount(options.getInt(APPLICATION_FEE_AMOUNT));
-            }
-
-            if (options.hasKey(ON_BEHALF_OF)) {
-                paymentIntentParamBuilder.setOnBehalfOf(options.getString(ON_BEHALF_OF));
-            }
-
-            if (options.hasKey(TRANSFER_DATA_DESTINATION)) {
-                paymentIntentParamBuilder.setTransferDataDestination(options.getString(TRANSFER_DATA_DESTINATION));
-            }
-
-            if (options.hasKey(TRANSFER_GROUP)) {
-                paymentIntentParamBuilder.setTransferGroup(TRANSFER_GROUP);
-            }
-
-            if (options.hasKey(CUSTOMER)) {
-                paymentIntentParamBuilder.setCustomer(options.getString(CUSTOMER));
-            }
-
-            if (options.hasKey(DESCRIPTION)) {
-                paymentIntentParamBuilder.setDescription(options.getString(DESCRIPTION));
-            }
-
-            if (options.hasKey(STATEMENT_DESCRIPTOR)) {
-                paymentIntentParamBuilder.setStatementDescriptor(options.getString(STATEMENT_DESCRIPTOR));
-            }
-
-             if (options.hasKey(STATEMENT_DESCRIPTOR)) {
-                paymentIntentParamBuilder.setStatementDescriptor(options.getString(STATEMENT_DESCRIPTOR));
-            }
-
-            if (options.hasKey(RECEIPT_EMAIL)) {
-                paymentIntentParamBuilder.setReceiptEmail(options.getString(RECEIPT_EMAIL));
-            }
-
-            if (options.hasKey(METADATA)) {
-                ReadableMap map = options.getMap(METADATA);
-                HashMap<String, String> metaDataMap = new HashMap<>();
-
-                if (map != null) {
-                    ReadableMapKeySetIterator iterator = options.keySetIterator();
-                    while (iterator.hasNextKey()) {
-                        String key = iterator.nextKey();
-                        String val = options.getString(key);
-                        metaDataMap.put(key, val);
-                    }
-                }
-
-                paymentIntentParamBuilder.setMetadata(metaDataMap);
-            }
-        }
-
-        return paymentIntentParamBuilder;
-    }
-
-    @ReactMethod
-    public void createPaymentIntent(ReadableMap options){
-        if(options!=null){
-            if(options.hasKey(CURRENCY))
-                lastCurrency = options.getString(CURRENCY);
-        }
-
-        PaymentIntentParameters.Builder paramsBuilder = getPaymentParams(options);
-
-        Terminal.getInstance().createPaymentIntent(paramsBuilder.build(), new PaymentIntentCallback() {
-            @Override
-            public void onSuccess(@Nonnull PaymentIntent paymentIntent) {
-                lastPaymentIntent  = paymentIntent;
-                WritableMap paymentIntentCreateRespMap = Arguments.createMap();
-                paymentIntentCreateRespMap.putMap(INTENT,serializePaymentIntent(paymentIntent,lastCurrency)); //No currency for android
-                sendEventWithName(EVENT_PAYMENT_INTENT_CREATION, paymentIntentCreateRespMap);
-            }
-
-            @Override
-            public void onFailure(@Nonnull TerminalException e) {
-                lastPaymentIntent = null;
-                WritableMap paymentIntentCreateRespMap = Arguments.createMap();
-                paymentIntentCreateRespMap.putString(ERROR,e.getErrorMessage());
-                sendEventWithName(EVENT_PAYMENT_INTENT_CREATION, paymentIntentCreateRespMap);
-            }
-        });
+     
+        Terminal.getInstance().retrievePaymentIntent(paymentIntent, paymentIntentCallback);
+     
     }
 
     @ReactMethod
@@ -661,8 +561,14 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void setReaderDisplay(int cartValue){
-        Cart.Builder cart = new Cart.Builder("gbp", 0, cartValue);
+    public void setReaderDisplay(int cartValue, Array cartItems){
+        List cartItems = Arrays.asList(new CartLineItem[] {
+            new CartLineItem.Builder("Test item 1", 1, 0).build(),
+            new CartLineItem.Builder("Test item 2", 1, 0).build(),
+            new CartLineItem.Builder("Test item 3", 1, 0).build()
+        });
+       
+        Cart.Builder cart = new Cart.Builder("gbp", 0, cartValue,cartItems);
         Terminal.getInstance().setReaderDisplay(cart.build(), new Callback() {
             @Override
                 public void onSuccess() {
@@ -675,7 +581,20 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
             }
         });
     }
+    @ReactMethod
+    public void resetReaderDisplay(){
+        Terminal.getInstance().clearReaderDisplay(new Callback() {
+            @Override
+                public void onSuccess() {
+                // Placeholder for handling successful operation
+                }
 
+            @Override
+            public void onFailure(TerminalException e) {
+            // Placeholder for handling exception
+            }
+        });
+    }
     @ReactMethod
     public void getPaymentStatus(){
         PaymentStatus status = Terminal.getInstance().getPaymentStatus();
@@ -766,5 +685,14 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     @Override
     public void onStartInstallingUpdate(ReaderSoftwareUpdate update, Cancelable cancel) {
         sendEventWithName(EVENT_DID_START_INSTALLING_UPDATE, serializeUpdate(update));
+    }
+    @ReactMethod
+    public void addListener(String eventName) {
+        // Keep: Required for RN built in Event Emitter Calls.
+    }
+
+    @ReactMethod
+    public void removeListeners(Integer count) {
+        // Keep: Required for RN built in Event Emitter Calls.
     }
 }
