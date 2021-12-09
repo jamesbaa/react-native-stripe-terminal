@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { StripeTerminalType } from ".";
 
-export default function createHooks(StripeTerminal) {
+export default function createHooks(StripeTerminal: StripeTerminalType) {
   function useStripeTerminalState() {
     const [connectionStatus, setConnectionStaus] = useState(
       StripeTerminal.ConnectionStatusNotConnected

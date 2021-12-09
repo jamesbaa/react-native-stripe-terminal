@@ -38,14 +38,13 @@ class StripeTerminal {
   ConnectionStatusNotConnected = RNStripeTerminal.ConnectionStatusNotConnected;
   ConnectionStatusConnected = RNStripeTerminal.ConnectionStatusConnected;
   ConnectionStatusConnecting = RNStripeTerminal.ConnectionStatusConnecting;
+  listener = new NativeEventEmitter(RNStripeTerminal);
 
   // Fetch connection token. Overwritten in call to initialize
   _fetchConnectionToken = () =>
     Promise.reject("You must initialize RNStripeTerminal first.");
 
   constructor() {
-    this.listener = new NativeEventEmitter(RNStripeTerminal);
-
     this.listener.addListener("requestConnectionToken", () => {
       this._fetchConnectionToken()
         .then((token) => {
@@ -94,7 +93,7 @@ class StripeTerminal {
     });
   }
 
-  _wrapPromiseReturn(event, call, key) {
+  _wrapPromiseReturn(event: string, call: () => unknown, key?: string) {
     return new Promise((resolve, reject) => {
       const subscription = this.listener.addListener(event, (data) => {
         if (data && data.error) {
@@ -291,6 +290,7 @@ class StripeTerminal {
 }
 
 const StripeTerminal_ = new StripeTerminal();
+export type StripeTerminalType = StripeTerminal;
 export default StripeTerminal_;
 
 export const {
