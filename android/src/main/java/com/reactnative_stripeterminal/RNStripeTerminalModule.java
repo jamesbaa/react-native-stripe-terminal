@@ -24,8 +24,6 @@ import com.stripe.stripeterminal.log.LogLevel;
 import com.stripe.stripeterminal.external.models.ConnectionConfiguration.BluetoothConnectionConfiguration;
 import com.stripe.stripeterminal.external.models.ConnectionConfiguration.InternetConnectionConfiguration;
 import com.stripe.stripeterminal.external.models.ConnectionStatus;
-import com.stripe.stripeterminal.external.models.Cart;
-import com.stripe.stripeterminal.external.models.CartLineItem;
 import com.stripe.stripeterminal.external.models.ConnectionTokenException;
 import com.stripe.stripeterminal.external.models.DiscoveryMethod;
 import com.stripe.stripeterminal.external.models.DiscoveryConfiguration;
@@ -658,26 +656,6 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     public void getConnectionStatus(){
         ConnectionStatus status = Terminal.getInstance().getConnectionStatus();
         sendEventWithName(EVENT_CONNECTION_STATUS, status.ordinal());
-    }
-
-    @Override
-    public void setReaderDisplay(){
-        Cart.Builder cart = new Cart.Builder("gbp", 100, 1998);
-        cart.lineItems = Arrays.toList(new CartLineItem[] {
-            new CartLineItem.Builder("Caramel latte", 1, 659).build(),
-            new CartLineItem.Builder("Dozen donuts", 1, 1239).build()
-        });
-        Terminal.getInstance().setReaderDisplay(cart.build(), new Callback() {
-            @Override
-                public void onSuccess() {
-                // Placeholder for handling successful operation
-                }
-
-            @Override
-            public void onFailure(TerminalException e) {
-            // Placeholder for handling exception
-            }
-        });
     }
 
     @ReactMethod
