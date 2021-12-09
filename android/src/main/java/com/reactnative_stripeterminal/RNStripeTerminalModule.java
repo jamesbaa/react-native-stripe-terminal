@@ -660,7 +660,7 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
         sendEventWithName(EVENT_CONNECTION_STATUS, status.ordinal());
     }
 
-    @ReactMethod
+    @Override
     public void setReaderDisplay(){
         Cart.Builder cart = new Cart.Builder("gbp", 100, 1998);
         cart.lineItems = Arrays.toList(new CartLineItem[] {
