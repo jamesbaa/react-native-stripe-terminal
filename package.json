@@ -40,12 +40,11 @@
   ],
   "license": "MIT",
   "licenseFilename": "LICENSE",
-  "main": "index.js",
+  "main": "index.ts",
   "name": "react-native-stripe-terminal",
   "peerDependencies": {
     "react": "^17.0.0",
-    "react-native": "^0.64.0",
-    "@react-native-async-storage/async-storage": "^1.15.14"
+    "react-native": "^0.64.0"
   },
   "repository": {
     "type": "git",
@@ -63,5 +62,7 @@
   },
   "title": "React Native Stripe Terminal",
   "version": "2.0.1",
-  "dependencies": {}
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.15.14"
+  }
 }
