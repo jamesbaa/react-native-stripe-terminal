@@ -38,60 +38,11 @@ class StripeTerminal {
   ConnectionStatusNotConnected = RNStripeTerminal.ConnectionStatusNotConnected;
   ConnectionStatusConnected = RNStripeTerminal.ConnectionStatusConnected;
   ConnectionStatusConnecting = RNStripeTerminal.ConnectionStatusConnecting;
-  listener = new NativeEventEmitter(RNStripeTerminal);
 
   // Fetch connection token. Overwritten in call to initialize
   _fetchConnectionToken = () =>
     Promise.reject("You must initialize RNStripeTerminal first.");
-
-  constructor() {
-    this.listener.addListener("requestConnectionToken", () => {
-      this._fetchConnectionToken()
-        .then((token) => {
-          if (token) {
-            RNStripeTerminal.setConnectionToken(token, null);
-          } else {
-            throw new Error(
-              "User-supplied `fetchConnectionToken` resolved successfully, but no token was returned."
-            );
-          }
-        })
-        .catch((err) =>
-          RNStripeTerminal.setConnectionToken(
-            null,
-            err.message || "Error in user-supplied `fetchConnectionToken`."
-          )
-        );
-    });
-
-    this._createListeners([
-      "log",
-      "readersDiscovered",
-      "abortDiscoverReadersCompletion",
-      "readerSoftwareUpdateProgress",
-      "didRequestReaderInput",
-      "didRequestReaderDisplayMessage",
-      "didReportReaderEvent",
-      "didReportLowBatteryWarning",
-      "didChangePaymentStatus",
-      "didChangeConnectionStatus",
-      "didReportUnexpectedReaderDisconnect",
-      "didReportAvailableUpdate",
-      "didStartInstallingUpdate",
-      "didReportReaderSoftwareUpdateProgress",
-      "didFinishInstallingUpdate",
-    ]);
-  }
-
-  _createListeners(keys) {
-    keys.forEach((k) => {
-      this[`add${k[0].toUpperCase() + k.substring(1)}Listener`] = (listener) =>
-        this.listener.addListener(k, listener);
-      this[`remove${k[0].toUpperCase() + k.substring(1)}Listener`] = (
-        listener
-      ) => this.listener.removeListener(k, listener);
-    });
-  }
+  listener = new NativeEventEmitter(RNStripeTerminal);
 
   _wrapPromiseReturn(event: string, call: () => unknown, key?: string) {
     return new Promise((resolve, reject) => {
@@ -114,6 +65,23 @@ class StripeTerminal {
       if (Platform.OS === "android") {
         RNStripeTerminal.initialize((status) => {
           if (status.isInitialized === true) {
+            fetchConnectionToken()
+              .then((token) => {
+                if (token) {
+                  RNStripeTerminal.setConnectionToken(token, null);
+                } else {
+                  throw new Error(
+                    "User-supplied `fetchConnectionToken` resolved successfully, but no token was returned."
+                  );
+                }
+              })
+              .catch((err) =>
+                RNStripeTerminal.setConnectionToken(
+                  null,
+                  err.message ||
+                    "Error in user-supplied `fetchConnectionToken`."
+                )
+              );
             resolve();
           } else {
             reject(status.error);
@@ -126,9 +94,9 @@ class StripeTerminal {
     });
   }
 
-  discoverReaders(method, simulated) {
+  discoverReaders(method, simulated, locationId) {
     return this._wrapPromiseReturn("readersDiscovered", () => {
-      RNStripeTerminal.discoverReaders(method, simulated);
+      RNStripeTerminal.discoverReaders(method, simulated, locationId);
     });
   }
 
@@ -169,6 +137,11 @@ class StripeTerminal {
   getConnectionStatus() {
     return this._wrapPromiseReturn("connectionStatus", () => {
       RNStripeTerminal.getConnectionStatus();
+    });
+  }
+  setTerminalDisplay() {
+    return this._wrapPromiseReturn("connectionStatus", () => {
+      RNStripeTerminal.setReaderDisplay();
     });
   }
 
@@ -214,11 +187,11 @@ class StripeTerminal {
     );
   }
 
-  collectPaymentMethod() {
+  collectPaymentMethod(paymentIntent) {
     return this._wrapPromiseReturn(
       "paymentMethodCollection",
       () => {
-        RNStripeTerminal.collectPaymentMethod();
+        RNStripeTerminal.collectPaymentMethod(paymentIntent);
       },
       "intent"
     );
@@ -286,6 +259,120 @@ class StripeTerminal {
     return this._currentService.stop().then(() => {
       this._currentService = null;
     });
+  }
+  addLogListener(listener) {
+    this.listener.addListener("log", listener);
+  }
+  removeLogListener(listener) {
+    this.listener.removeListener("log", listener);
+  }
+  addReadersDiscoveredListener(listener) {
+    this.listener.addListener("readersDiscovered", listener);
+  }
+  removeReadersDiscoveredListener(listener) {
+    this.listener.removeListener("readersDiscovered", listener);
+  }
+  addAbortDiscoverReadersCompletionListener(listener) {
+    this.listener.addListener("abortDiscoverReadersCompletion", listener);
+  }
+  removeAbortDiscoverReadersCompletionListener(listener) {
+    this.listener.removeListener("abortDiscoverReadersCompletion", listener);
+  }
+  addReaderSoftwareUpdateProgressListener(listener) {
+    this.listener.addListener("readerSoftwareUpdateProgress", listener);
+  }
+  removeReaderSoftwareUpdateProgressListener(listener) {
+    this.listener.removeListener("readerSoftwareUpdateProgress", listener);
+  }
+  addDidRequestReaderInputListener(listener) {
+    this.listener.addListener("didRequestReaderInput", listener);
+  }
+  removeDidRequestReaderInputListener(listener) {
+    this.listener.removeListener("didRequestReaderInput", listener);
+  }
+  addDidRequestReaderDisplayMessageListener(listener) {
+    this.listener.addListener("didRequestReaderDisplayMessage", listener);
+  }
+  removeDidRequestReaderDisplayMessageListener(listener) {
+    this.listener.removeListener("didRequestReaderDisplayMessage", listener);
+  }
+  addDidReportReaderEventListener(listener) {
+    this.listener.addListener("didReportReaderEvent", listener);
+  }
+  removeDidReportReaderEventListener(listener) {
+    this.listener.removeListener("didReportReaderEvent", listener);
+  }
+  addDidReportLowBatteryWarningListener(listener) {
+    this.listener.addListener("didReportLowBatteryWarning", listener);
+  }
+  removeDidReportLowBatteryWarningListener(listener) {
+    this.listener.removeListener("didReportLowBatteryWarning", listener);
+  }
+  addDidChangePaymentStatusListener(listener) {
+    this.listener.addListener("didChangePaymentStatus", listener);
+  }
+  removeDidChangePaymentStatusListener(listener) {
+    this.listener.removeListener("didChangePaymentStatus", listener);
+  }
+  addDidChangeConnectionStatusListener(listener) {
+    this.listener.addListener("didChangeConnectionStatus", listener);
+  }
+  removeDidChangeConnectionStatusListener(listener) {
+    this.listener.removeListener("didChangeConnectionStatus", listener);
+  }
+  addDidReportUnexpectedReaderDisconnectListener(listener) {
+    this.listener.addListener("didReportUnexpectedReaderDisconnect", listener);
+  }
+  removeDidReportUnexpectedReaderDisconnectListener(listener) {
+    this.listener.removeListener(
+      "didReportUnexpectedReaderDisconnect",
+      listener
+    );
+  }
+  addDidReportAvailableUpdateListener(listener) {
+    this.listener.addListener("didReportAvailableUpdate", listener);
+  }
+  removeDidReportAvailableUpdateListener(listener) {
+    this.listener.removeListener("didReportAvailableUpdate", listener);
+  }
+  addDidStartInstallingUpdateListener(listener) {
+    this.listener.addListener("didStartInstallingUpdate", listener);
+  }
+  removeDidStartInstallingUpdateListener(listener) {
+    this.listener.removeListener("didStartInstallingUpdate", listener);
+  }
+  addDidReportReaderSoftwareUpdateProgressListener(listener) {
+    this.listener.addListener(
+      "didReportReaderSoftwareUpdateProgress",
+      listener
+    );
+  }
+  removeDidReportReaderSoftwareUpdateProgressListener(listener) {
+    this.listener.removeListener(
+      "didReportReaderSoftwareUpdateProgress",
+      listener
+    );
+  }
+  addDidFinishInstallingUpdateListener(listener) {
+    this.listener.addListener("didFinishInstallingUpdate", listener);
+  }
+  removeDidFinishInstallingUpdateListener(listener) {
+    this.listener.removeListener("didFinishInstallingUpdate", listener);
+  }
+  addDidBeginWaitingForReaderInputListener(listener) {
+    this.listener.addListener("didBeginWaitingForReaderInput", listener);
+  }
+  removeDidBeginWaitingForReaderInputListener(listener) {
+    this.listener.removeListener("didBeginWaitingForReaderInput", listener);
+  }
+  addDidRequestReaderInputPromptListener(listener) {
+    this.listener.addListener("didRequestReaderInputPromptListener", listener);
+  }
+  removeDidRequestReaderInputPromptListener(listener) {
+    this.listener.removeListener(
+      "didRequestReaderInputPromptListener",
+      listener
+    );
   }
 }
 

@@ -22,7 +22,10 @@ import com.stripe.stripeterminal.external.callable.ReaderSoftwareUpdateCallback;
 import com.stripe.stripeterminal.external.callable.TerminalListener;
 import com.stripe.stripeterminal.log.LogLevel;
 import com.stripe.stripeterminal.external.models.ConnectionConfiguration.BluetoothConnectionConfiguration;
+import com.stripe.stripeterminal.external.models.ConnectionConfiguration.InternetConnectionConfiguration;
 import com.stripe.stripeterminal.external.models.ConnectionStatus;
+import com.stripe.stripeterminal.external.models.Cart;
+import com.stripe.stripeterminal.external.models.CartLineItem;
 import com.stripe.stripeterminal.external.models.ConnectionTokenException;
 import com.stripe.stripeterminal.external.models.DiscoveryMethod;
 import com.stripe.stripeterminal.external.models.DiscoveryConfiguration;
@@ -156,12 +159,10 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void discoverReaders(int method, int simulated,String locationId ) {
+    public void discoverReaders(int method, int simulated, String locationId ) {
         boolean isSimulated = simulated == 0?false:true;
         try {
-//            DiscoveryMethod discMethod;
-//            discMethod = DiscoveryMethod.valueOf(DiscoveryMethod.BLUETOOTH_SCAN.);  // Our only discovery method for Android
-            DiscoveryConfiguration discoveryConfiguration = new DiscoveryConfiguration(0, DiscoveryMethod.INTERNET, isSimulated,locationId);
+            DiscoveryConfiguration discoveryConfiguration = new DiscoveryConfiguration(0, DiscoveryMethod.INTERNET, isSimulated, locationId);
             Callback statusCallback = new Callback() {
                 @Override
                 public void onSuccess() {
@@ -365,6 +366,10 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
                 paymentIntentParamBuilder.setStatementDescriptor(options.getString(STATEMENT_DESCRIPTOR));
             }
 
+             if (options.hasKey(STATEMENT_DESCRIPTOR)) {
+                paymentIntentParamBuilder.setStatementDescriptor(options.getString(STATEMENT_DESCRIPTOR));
+            }
+
             if (options.hasKey(RECEIPT_EMAIL)) {
                 paymentIntentParamBuilder.setReceiptEmail(options.getString(RECEIPT_EMAIL));
             }
@@ -489,12 +494,11 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void collectPaymentMethod(){
-        pendingCreatePaymentIntent = Terminal.getInstance().collectPaymentMethod(lastPaymentIntent, new PaymentIntentCallback() {
+    public void collectPaymentMethod(final PaymentIntent paymentIntent){
+        pendingCreatePaymentIntent = Terminal.getInstance().collectPaymentMethod(paymentIntent, new PaymentIntentCallback() {
             @Override
-            public void onSuccess(@Nonnull PaymentIntent paymentIntent) {
+            public void onSuccess(final PaymentIntent paymentIntent) {
                 pendingCreatePaymentIntent = null;
-                lastPaymentIntent = paymentIntent;
                 WritableMap collectPaymentMethodMap = Arguments.createMap();
                 collectPaymentMethodMap.putMap(INTENT,serializePaymentIntent(paymentIntent,lastCurrency));
                 sendEventWithName(EVENT_PAYMENT_METHOD_COLLECTION,collectPaymentMethodMap);
@@ -526,8 +530,8 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
         }
 
         if(selectedReader!=null) {
-            BluetoothConnectionConfiguration config = new BluetoothConnectionConfiguration(locationId);
-            Terminal.getInstance().connectBluetoothReader(selectedReader, config, this, new ReaderCallback() {
+            InternetConnectionConfiguration config = new InternetConnectionConfiguration();
+            Terminal.getInstance().connectInternetReader(selectedReader, config, new ReaderCallback() {
                 @Override
                 public void onSuccess(@Nonnull Reader reader) {
                     sendEventWithName(EVENT_READER_CONNECTION, serializeReader(reader));
@@ -654,6 +658,26 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     public void getConnectionStatus(){
         ConnectionStatus status = Terminal.getInstance().getConnectionStatus();
         sendEventWithName(EVENT_CONNECTION_STATUS, status.ordinal());
+    }
+
+    @ReactMethod
+    public void setReaderDisplay(){
+        Cart.Builder cart = new Cart.Builder("gbp", 100, 1998);
+        cart.lineItems = Arrays.toList(new CartLineItem[] {
+            new CartLineItem.Builder("Caramel latte", 1, 659).build(),
+            new CartLineItem.Builder("Dozen donuts", 1, 1239).build()
+        });
+        Terminal.getInstance().setReaderDisplay(cart.build(), new Callback() {
+            @Override
+                public void onSuccess() {
+                // Placeholder for handling successful operation
+                }
+
+            @Override
+            public void onFailure(TerminalException e) {
+            // Placeholder for handling exception
+            }
+        });
     }
 
     @ReactMethod
