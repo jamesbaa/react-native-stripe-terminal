@@ -139,9 +139,9 @@ class StripeTerminal {
       RNStripeTerminal.getConnectionStatus();
     });
   }
-  setTerminalDisplay() {
+  setTerminalDisplay(value: number) {
     return this._wrapPromiseReturn("connectionStatus", () => {
-      RNStripeTerminal.setReaderDisplay();
+      RNStripeTerminal.setReaderDisplay(value);
     });
   }
 

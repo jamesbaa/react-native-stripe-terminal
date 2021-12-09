@@ -660,8 +660,8 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void setReaderDisplay(){
-        Cart.Builder cart = new Cart.Builder("gbp", 100, 1998);
+    public void setReaderDisplay(int cartValue){
+        Cart.Builder cart = new Cart.Builder("gbp", 0, cartValue);
         Terminal.getInstance().setReaderDisplay(cart.build(), new Callback() {
             @Override
                 public void onSuccess() {
