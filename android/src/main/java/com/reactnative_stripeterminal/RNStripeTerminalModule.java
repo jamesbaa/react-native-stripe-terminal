@@ -6,6 +6,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
@@ -269,9 +270,6 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
                                     public void onSuccess(@Nonnull PaymentIntent confirmedIntent) {
                                         WritableMap intentMap = Arguments.createMap();
                                         String currency = "";
-                                        if (options != null && options.hasKey(CURRENCY)) {
-                                            currency = options.getString(CURRENCY);
-                                        }
                                         intentMap.putMap(INTENT, serializePaymentIntent(confirmedIntent, currency));
                                         sendEventWithName(EVENT_PAYMENT_CREATION, intentMap);
                                     }
@@ -298,9 +296,6 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
                                 collectionErrorMap.putString(ERROR, e.getErrorMessage());
                                 collectionErrorMap.putInt(CODE, e.getErrorCode().ordinal());
                                 String currency = "";
-                                if (options != null && options.hasKey(CURRENCY)) {
-                                    currency = options.getString(CURRENCY);
-                                }
                                 collectionErrorMap.putMap(INTENT, serializePaymentIntent(paymentIntent, currency));
                                 sendEventWithName(EVENT_PAYMENT_CREATION, collectionErrorMap);
                             }
@@ -561,12 +556,15 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void setReaderDisplay(int cartValue, Array cartItems){
-        List cartItems = Arrays.asList(new CartLineItem[] {
-            new CartLineItem.Builder("Test item 1", 1, 0).build(),
-            new CartLineItem.Builder("Test item 2", 1, 0).build(),
-            new CartLineItem.Builder("Test item 3", 1, 0).build()
+    public void setReaderDisplay(int cartValue, ReadableArray cartItems){
+        List cartItems = null
+        if(cartItems!=null){
+           cartItems = Arrays.asList(new CartLineItem[] {for(ReadableMap lineItem:cartItems){
+            new CartLineItem.Builder(lineItem.hasKey(description)?lineItem.description:"",lineItem.hasKey(quantity)?lineItem.quantity:1 , lineItem.hasKey(value)?lineItem.value:0).build()
+           }
         });
+        }
+       
        
         Cart.Builder cart = new Cart.Builder("gbp", 0, cartValue,cartItems);
         Terminal.getInstance().setReaderDisplay(cart.build(), new Callback() {

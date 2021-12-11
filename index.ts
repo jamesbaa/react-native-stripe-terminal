@@ -1,7 +1,6 @@
 import {
   NativeModules,
   NativeEventEmitter,
-  Platform,
   EmitterSubscription,
 } from "react-native";
 import createHooks from "./hooks";
@@ -23,6 +22,8 @@ type ProcessPaymentResolve = {
   status: number;
   stripeId: string;
 };
+
+type CartItem = { description: string; quantity?: number; value?: number };
 class StripeTerminal {
   // Discovery method
   DiscoveryMethodInternet = RNStripeTerminal.DiscoveryMethodInternet;
@@ -113,17 +114,17 @@ class StripeTerminal {
     });
   }
 
-  discoverReaders(simulated, locationId): Promise<Reader[]> {
+  discoverReaders(simulated: boolean, locationId: string): Promise<Reader[]> {
     return this._wrapPromiseReturn("readersDiscovered", () => {
       RNStripeTerminal.discoverReaders(
         this.DiscoveryMethodInternet,
-        simulated,
+        !!simulated ? 1 : 0,
         locationId
       );
     });
   }
 
-  connectReader(serialNumber, locationId): Promise<Reader> {
+  connectReader(serialNumber: string, locationId: string): Promise<Reader> {
     return this._wrapPromiseReturn("readerConnection", () => {
       RNStripeTerminal.connectReader(serialNumber, locationId);
     });
@@ -146,7 +147,7 @@ class StripeTerminal {
       RNStripeTerminal.getConnectionStatus();
     });
   }
-  setTerminalDisplay(value: number, cartItems = []): Promise<void> {
+  setTerminalDisplay(value: number, cartItems: CartItem[] = []): Promise<void> {
     return this._wrapPromiseReturn("setTerminalDisplay", () => {
       RNStripeTerminal.setReaderDisplay(value, cartItems);
     });
