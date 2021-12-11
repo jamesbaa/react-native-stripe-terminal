@@ -564,12 +564,10 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
                 int value = item.getInt("value");
                 cartItemsTransformed.add(new CartLineItem.Builder(description,quantity,value).build());
             };
-        }else{
-            List cartItemsTransformed = null;
-        };
+        }
        
        
-        Cart.Builder cart = new Cart.Builder("gbp", 0, cartValue,cartItemsTransformed);
+        Cart.Builder cart = cartItems!=null ? new Cart.Builder("gbp", 0, cartValue, cartItemsTransformed) : new Cart.Builder("gbp", 0, cartValue);
         Terminal.getInstance().setReaderDisplay(cart.build(), new Callback() {
             @Override
                 public void onSuccess() {
