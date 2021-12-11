@@ -38,6 +38,8 @@ import com.stripe.stripeterminal.external.models.ReaderInputOptions;
 import com.stripe.stripeterminal.external.models.ReaderSoftwareUpdate;
 import com.stripe.stripeterminal.external.models.TerminalException;
 import com.stripe.stripeterminal.Terminal;
+import com.stripe.stripeterminal.external.callable.BluetoothReaderListener;
+import com.stripe.stripeterminal.external.models.ConnectionConfiguration.BluetoothConnectionConfiguration;
 
 import java.sql.Wrapper;
 import java.text.SimpleDateFormat;
@@ -53,7 +55,7 @@ import javax.annotation.Nullable;
 
 import static com.reactnative_stripeterminal.Constants.*;
 
-public class RNStripeTerminalModule extends ReactContextBaseJavaModule implements TerminalListener, ConnectionTokenProvider, DiscoveryListener {
+public class RNStripeTerminalModule extends ReactContextBaseJavaModule implements TerminalListener, ConnectionTokenProvider, BluetoothReaderListener,DiscoveryListener {
     final static String TAG = RNStripeTerminalModule.class.getSimpleName();
     final static String moduleName = "RNStripeTerminal";
     Cancelable pendingDiscoverReaders = null;
