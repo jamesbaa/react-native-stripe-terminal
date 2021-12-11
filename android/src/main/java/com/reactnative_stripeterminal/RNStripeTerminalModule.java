@@ -280,9 +280,6 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
                                         errorMap.putString(ERROR, e.getErrorMessage());
                                         errorMap.putInt(CODE, e.getErrorCode().ordinal());
                                         String currency = "";
-                                        if (options != null && options.hasKey(CURRENCY)) {
-                                            currency = options.getString(CURRENCY);
-                                        }
                                         errorMap.putMap(INTENT, serializePaymentIntent(collectedIntent, currency));
                                         sendEventWithName(EVENT_PAYMENT_CREATION, errorMap);
                                     }
@@ -559,7 +556,7 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     public void setReaderDisplay(int cartValue, ReadableArray cartItems){
         if(cartItems!=null){
             List cartItems = null;
-            for(ReadableMap lineItem:cartItems){
+            for(Object lineItem:cartItems){
                 cartItems.add(new CartLineItem.Builder(lineItem.hasKey(description)?lineItem.description:"",lineItem.hasKey(quantity)?lineItem.quantity:1 , lineItem.hasKey(value)?lineItem.value:0).build());
             };
         }else{
