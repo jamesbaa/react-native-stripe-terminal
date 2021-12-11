@@ -552,8 +552,8 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void setReaderDisplay(int cartValue, ReadableArray cartItems){
+        List<CartLineItem> cartItemsTransformed = new ArrayList();
         if(cartItems!=null){
-            List cartItemsTransformed = null;
             for (int i = 0; i <  cartItems.size(); i++) {
                 ReadableMap item = cartItems.getMap(i);
                 if (item == null) {
@@ -567,7 +567,7 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
         }
        
        
-        Cart.Builder cart = cartItems!=null ? new Cart.Builder("gbp", 0, cartValue, cartItemsTransformed) : new Cart.Builder("gbp", 0, cartValue);
+        Cart.Builder cart = new Cart.Builder("gbp", 0, cartValue, cartItemsTransformed);
         Terminal.getInstance().setReaderDisplay(cart.build(), new Callback() {
             @Override
                 public void onSuccess() {
