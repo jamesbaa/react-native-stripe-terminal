@@ -18,11 +18,9 @@ import com.stripe.stripeterminal.external.callable.ConnectionTokenProvider;
 import com.stripe.stripeterminal.external.callable.DiscoveryListener;
 import com.stripe.stripeterminal.external.callable.PaymentIntentCallback;
 import com.stripe.stripeterminal.external.callable.ReaderCallback;
-import com.stripe.stripeterminal.external.callable.BluetoothReaderListener;
 import com.stripe.stripeterminal.external.callable.ReaderSoftwareUpdateCallback;
 import com.stripe.stripeterminal.external.callable.TerminalListener;
 import com.stripe.stripeterminal.log.LogLevel;
-import com.stripe.stripeterminal.external.models.ConnectionConfiguration.BluetoothConnectionConfiguration;
 import com.stripe.stripeterminal.external.models.ConnectionConfiguration.InternetConnectionConfiguration;
 import com.stripe.stripeterminal.external.models.ConnectionStatus;
 import com.stripe.stripeterminal.external.models.Cart;
@@ -54,7 +52,7 @@ import javax.annotation.Nullable;
 
 import static com.reactnative_stripeterminal.Constants.*;
 
-public class RNStripeTerminalModule extends ReactContextBaseJavaModule implements TerminalListener, ConnectionTokenProvider, BluetoothReaderListener, DiscoveryListener {
+public class RNStripeTerminalModule extends ReactContextBaseJavaModule implements TerminalListener, ConnectionTokenProvider, DiscoveryListener {
     final static String TAG = RNStripeTerminalModule.class.getSimpleName();
     final static String moduleName = "RNStripeTerminal";
     Cancelable pendingDiscoverReaders = null;
@@ -557,7 +555,7 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
         if(cartItems!=null){
             List cartItemsTransformed = null;
             for (int i = 0; i <  cartItems.size(); i++) {
-                ReadableMap item = args.getMap(i);
+                ReadableMap item = cartItems.getMap(i);
                 if (item == null) {
                     continue;
                 };
