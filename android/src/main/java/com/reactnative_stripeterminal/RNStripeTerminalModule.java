@@ -556,8 +556,15 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
     public void setReaderDisplay(int cartValue, ReadableArray cartItems){
         if(cartItems!=null){
             List cartItemsTransformed = null;
-            for(Object lineItem:cartItems){
-                cartItems.add(new CartLineItem.Builder(lineItem.hasKey(description)?lineItem.description:"",lineItem.hasKey(quantity)?lineItem.quantity:1 , lineItem.hasKey(value)?lineItem.value:0).build());
+            for (int i = 0; i <  cartItems.size(); i++) {
+                ReadableMap item = args.getMap(i);
+                if (item == null) {
+                    continue;
+                };
+                String description = item.getString("description");
+                int quantity = item.getInt("quantity");
+                int value = item.getInt("value");
+                cartItemsTransformed.add(new CartLineItem.Builder(description,quantity,value).build());
             };
         }else{
             List cartItemsTransformed = null;
