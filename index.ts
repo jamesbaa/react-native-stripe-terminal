@@ -7,14 +7,14 @@ import createHooks from "./hooks";
 
 const { RNStripeTerminal } = NativeModules;
 
-type ListenerCallback<T = null> = (data: T) => void;
+export type ListenerCallback<T = null> = (data: T) => void;
 type Reader = {
   serialNumber: string;
   deviceType: number;
   batteryLevel: number;
   deviceSoftwareVersion: string;
 };
-type ProcessPaymentResolve = {
+export type ProcessPaymentResolve = {
   amount: number;
   created: Date;
   currency: string;
@@ -23,7 +23,11 @@ type ProcessPaymentResolve = {
   stripeId: string;
 };
 
-type CartItem = { description: string; quantity?: number; value?: number };
+export type CartItem = {
+  description: string;
+  quantity?: number;
+  value?: number;
+};
 class StripeTerminal {
   // Discovery method
   DiscoveryMethodInternet = RNStripeTerminal.DiscoveryMethodInternet;

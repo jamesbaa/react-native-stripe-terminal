@@ -557,11 +557,11 @@ public class RNStripeTerminalModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void setReaderDisplay(int cartValue, ReadableArray cartItems){
-        List cartItems = null
+        List cartItems = null;
         if(cartItems!=null){
            cartItems = Arrays.asList(new CartLineItem[] {for(ReadableMap lineItem:cartItems){
-            new CartLineItem.Builder(lineItem.hasKey(description)?lineItem.description:"",lineItem.hasKey(quantity)?lineItem.quantity:1 , lineItem.hasKey(value)?lineItem.value:0).build()
-           }
+            new CartLineItem.Builder(lineItem.hasKey(description)?lineItem.description:"",lineItem.hasKey(quantity)?lineItem.quantity:1 , lineItem.hasKey(value)?lineItem.value:0).build();
+           };
         });
         }
        
