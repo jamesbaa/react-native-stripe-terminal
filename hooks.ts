@@ -47,7 +47,7 @@ export default function createHooks(StripeTerminal: StripeTerminalType) {
 
       // Cleanup: remove listeners
       return () => {
-        listeners.forEach((l) => l.remove());
+        listeners.forEach((remove) => remove());
       };
     }, []);
 
@@ -147,9 +147,8 @@ export default function createHooks(StripeTerminal: StripeTerminalType) {
   const ConnectionManagerStatusScanning = "scanning";
 
   function useStripeTerminalConnectionManager({ service }) {
-    const { connectionStatus, connectedReader, paymentStatus } = (state =
-      useStripeTerminalState());
-
+    const state = useStripeTerminalState();
+    const { connectedReader } = state;
     const [managerConnectionStatus, setManagerConnectionStatus] = useState(
       ConnectionManagerStatusDisconnected
     );
@@ -183,7 +182,7 @@ export default function createHooks(StripeTerminal: StripeTerminalType) {
 
       // Cleanup: remove listeners
       return () => {
-        listeners.forEach((l) => l.remove());
+        listeners.forEach((remove) => remove());
       };
     }, []);
 
