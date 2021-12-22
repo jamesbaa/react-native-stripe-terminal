@@ -59,7 +59,7 @@ class StripeTerminal {
   listener = new NativeEventEmitter(RNStripeTerminal);
 
   // Fetch connection token. Overwritten in call to initialize
-  _fetchConnectionToken = () =>
+  _fetchConnectionToken = ():Promise<any> =>
     Promise.reject("You must initialize RNStripeTerminal first.");
 
   constructor() {
@@ -102,7 +102,7 @@ class StripeTerminal {
     });
   }
 
-  initialize({ fetchConnectionToken }:{fetchConnectionToken:()=>Promise<never>}): Promise<boolean | string> {
+  initialize({ fetchConnectionToken }:{fetchConnectionToken:()=>Promise<any>}): Promise<boolean | string> {
     this._fetchConnectionToken = fetchConnectionToken;
     return new Promise((resolve, reject) => {
       RNStripeTerminal.initialize(
