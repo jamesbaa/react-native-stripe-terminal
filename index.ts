@@ -8,7 +8,7 @@ import createHooks from "./hooks";
 const { RNStripeTerminal } = NativeModules;
 
 export type ListenerCallback<T = null> = (data: T) => void;
-type Reader = {
+export type Reader = {
   serialNumber: string;
   deviceType: number;
   batteryLevel: number;
