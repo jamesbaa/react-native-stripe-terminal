@@ -3,11 +3,10 @@ import {
   NativeEventEmitter,
   EmitterSubscription,
 } from "react-native";
-import createHooks from "./hooks";
 
 const { RNStripeTerminal } = NativeModules;
 
-export type ListenerCallback<T = null> = (data: T) => void;
+export type ListenerCallback<T = any> = (data: T) => void;
 export type Reader = {
   serialNumber: string;
   deviceType: number;
@@ -103,7 +102,7 @@ class StripeTerminal {
     });
   }
 
-  initialize({ fetchConnectionToken }): Promise<boolean | string> {
+  initialize({ fetchConnectionToken }:{fetchConnectionToken:()=>Promise<never>}): Promise<boolean | string> {
     this._fetchConnectionToken = fetchConnectionToken;
     return new Promise((resolve, reject) => {
       RNStripeTerminal.initialize(
@@ -183,7 +182,7 @@ class StripeTerminal {
     );
   }
 
-  retrievePaymentIntent(clientSecret) {
+  retrievePaymentIntent(clientSecret:string) {
     /**
      * Retrieves a pending intent from stripe and stores it in the native SDK.
      * The raw intent should ideally remain in the native SDK and is not returned to JS
@@ -339,8 +338,4 @@ const StripeTerminal_ = new StripeTerminal();
 export type StripeTerminalType = StripeTerminal;
 export default StripeTerminal_;
 
-export const {
-  useStripeTerminalState,
-  useStripeTerminalCreatePayment,
-  useStripeTerminalConnectionManager,
-} = createHooks(StripeTerminal_);
+
